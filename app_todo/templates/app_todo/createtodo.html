@@ -1,0 +1,16 @@
+{% extends 'app_todo/base.html' %}
+
+{% block content %}
+
+<h1>Create</h1>
+
+<h2> {{ error }} </h2>
+
+<form method="POST">
+    <!-- CSRF token for Forbidden 403 error-->
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Create</button>
+</form>
+
+{% endblock %}

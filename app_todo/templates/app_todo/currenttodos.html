@@ -2,6 +2,11 @@
 
 {% block content %}
 
-Current
+<ul>
+    {% for todo in todos %}
+        <li><a href="{% url 'viewtodo' todo.id %}">{{ todo.title }}</li></a>
+    {% endfor %} 
+
+</ul>
 
 {% endblock %}

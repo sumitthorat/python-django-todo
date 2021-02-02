@@ -1,8 +1,13 @@
-from django.shortcuts import render, redirect
+from django.http.request import HttpRequest
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.db import IntegrityError
+from .forms import TodoForm
+from .models import Todo
+from django.utils import timezone
+
 
 def signupuser(request):
     if request.method == 'GET':
@@ -22,15 +27,19 @@ def signupuser(request):
 
 
 def currenttodos(request):
-    return render(request, 'app_todo/currenttodos.html')
+    todos = Todo.objects.filter(user=request.user)
+    return render(request, 'app_todo/currenttodos.html', {'todos':todos})
+
 
 def logoutuser(request):
     if request.method == 'POST':
         logout(request)
         return redirect('home')
 
+
 def home(request):
     return render(request, 'app_todo/home.html')
+
 
 def loginuser(request):
     if request.method == 'GET':
@@ -42,3 +51,43 @@ def loginuser(request):
         else:
             login(request, user)
             return redirect('currenttodos')
+
+
+def createtodo(request):
+    if request.method == 'GET':
+        return render(request, 'app_todo/createtodo.html', {'form':TodoForm})
+    else:
+        try:
+            form = TodoForm(request.POST)
+            new_todo = form.save(commit=False)
+            new_todo.user = request.user
+            new_todo.save()
+            return redirect('currenttodos')
+        except ValueError:
+            return render(request, 'app_todo/createtodo.html', {'form':TodoForm, 'error':'Invalid data format. Please try again.'})
+
+
+def viewtodo(request, todo_pk):
+    todo = get_object_or_404(Todo, pk=todo_pk, user=request.user)
+
+    if request.method == 'GET':
+        form = TodoForm(instance=todo)
+        return render(request, 'app_todo/viewtodo.html', {'todo':todo, 'form':form})
+    else:
+        try:
+            form = TodoForm(request.POST, instance=todo)
+            form.save()
+            return render(request, 'app_todo/viewtodo.html', {'todo':todo, 'form':form})
+        except ValueError:
+            form = None
+            return render(request, 'app_todo/viewtodo.html', {'todo':todo, 'form':form, 'error':'Invalid data format.'})
+
+def completetodo(request, todo_pk):
+    todo = get_object_or_404(Todo, pk=todo_pk, user=request.user)
+    if request.method == 'POST':
+        todo.datecompleted = timezone.now()
+        todo.save()
+        return redirect('currenttodos')
+
+
+    
