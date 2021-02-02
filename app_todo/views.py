@@ -89,11 +89,15 @@ def completetodo(request, todo_pk):
         todo.save()
         return redirect('currenttodos')
 
-def completetodo(request, todo_pk):
+def deletetodo(request, todo_pk):
     todo = get_object_or_404(Todo, pk=todo_pk, user=request.user)
     if request.method == 'POST':
         todo.delete()
         return redirect('currenttodos')
+
+def completedtodos(request):
+    todos = Todo.objects.filter(user=request.user, datecompleted__isnull=False).order_by('-datecompleted')
+    return render(request, 'app_todo/completedtodos.html', {'todos':todos})
 
 
     

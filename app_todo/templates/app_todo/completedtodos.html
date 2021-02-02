@@ -1,0 +1,14 @@
+{% extends 'app_todo/base.html' %}
+
+{% block content %}
+
+Completed
+
+<ul>
+    {% for todo in todos %}
+        <li><a href="{% url 'viewtodo' todo.id %}">{{ todo.title }}, {{ todo.datecompleted }}</li></a>
+    {% endfor %} 
+
+</ul>
+
+{% endblock %}
