@@ -27,7 +27,7 @@ def signupuser(request):
 
 
 def currenttodos(request):
-    todos = Todo.objects.filter(user=request.user)
+    todos = Todo.objects.filter(user=request.user, datecompleted__isnull=True)
     return render(request, 'app_todo/currenttodos.html', {'todos':todos})
 
 
